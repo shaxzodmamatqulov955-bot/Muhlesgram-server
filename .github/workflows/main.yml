@@ -1,0 +1,36 @@
+name: Muhlesgram Professional Builder
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  rebrand-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodni yuklab olish
+        uses: actions/checkout@v4
+
+      - name: Brendingni o'zgartirish (Nomlar va Papkalar)
+        run: |
+          # 1. Barcha fayllar ichidagi eski nomlarni Muhlesgram'ga almashtirish
+          grep -rl "teamgram" . | xargs sed -i 's/teamgram/muhlesgram/g'
+          grep -rl "Teamgram" . | xargs sed -i 's/Teamgram/Muhlesgram/g'
+          
+          # 2. Papkalar nomini professional darajada o'zgartirish
+          if [ -d "teamgramd" ]; then mv teamgramd muhlesgramd; fi
+          
+          echo "Brending muvaffaqiyatli o'rnatildi!"
+
+      - name: Go muhitini sozlash
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
+
+      - name: Cosmos SDK va Serverni yig'ish (Build)
+        run: |
+          go mod tidy
+          go build -o muhlesgram-server ./main.go
+
